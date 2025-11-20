@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from './generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class AppService {
-  prisma = new PrismaClient();
+  prisma = new PrismaClient({} as any);
 
   async getViewsCount(pageId: string): Promise<number> {
     const pageViews = await this.prisma.pageViews.findFirst({
@@ -14,19 +14,28 @@ export class AppService {
     if (pageViews) {
       return pageViews.count;
     }
-    return 1;
+    return 0;
   }
 
   async incrementViewsCount(pageId: string): Promise<void> {
     const viewCount = await this.getViewsCount(pageId);
 
-    await this.prisma.pageViews.update({
-      where: {
-        pageId: pageId,
-      },
-      data: {
-        count: viewCount + 1,
-      },
-    });
+    if (viewCount > 0) {
+      await this.prisma.pageViews.update({
+        where: {
+          pageId: pageId,
+        },
+        data: {
+          count: viewCount + 1,
+        },
+      });
+    } else {
+      await this.prisma.pageViews.create({
+        data: {
+          pageId: pageId,
+          count: 1,
+        },
+      });
+    }
   }
 }
