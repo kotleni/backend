@@ -1,0 +1,14 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      target: production
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
