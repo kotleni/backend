@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
 export class AppService {
-  prisma = new PrismaClient({} as any);
+  private prisma = new PrismaClient({
+    adapter: new PrismaPg({
+      connectionString: process.env.DATABASE_URL,
+    }),
+  });
 
   async getViewsCount(pageId: string): Promise<number> {
     const pageViews = await this.prisma.pageViews.findFirst({
@@ -17,7 +22,7 @@ export class AppService {
     return 0;
   }
 
-  async incrementViewsCount(pageId: string): Promise<void> {
+  async incrementViewsCount(pageId: string): Promise<number> {
     const viewCount = await this.getViewsCount(pageId);
 
     if (viewCount > 0) {
@@ -37,5 +42,7 @@ export class AppService {
         },
       });
     }
+
+    return viewCount + 1;
   }
 }

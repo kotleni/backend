@@ -34,7 +34,7 @@ export class AppController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    await this.appService.incrementViewsCount(pageId);
-    return {};
+    const viewsCount = await this.appService.incrementViewsCount(pageId);
+    return { count: viewsCount };
   }
 }
